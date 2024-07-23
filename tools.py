@@ -9,6 +9,10 @@ from langchain_openai import OpenAIEmbeddings
 # xata
 from xata.client import XataClient
 from langchain_community.vectorstores.xata import XataVectorStore
+# logger
+import logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
+LOG = logging.getLogger("tools")
 
 dotenv.load_dotenv()
 
@@ -209,10 +213,27 @@ def remove_title_from_lists_of_movies(title: str) -> None:
     delete_movie_from_table(title)
 
 
+@tool
+def search_for_personal_information_in_movie_history(query: str) -> None:
+    """Search the database for a movie title and personal comments about it to give some context
+    and help answer a question.
+
+    Args:
+        title (str): movie title to delete
+    """
+    found_docs = vector_store.similarity_search(query, k=3)
+    context = []
+    for doc in found_docs:
+        context.append(doc.page_content)
+    LOG.debug("Retrieved docs from table:", context)
+    return context
+
+
 # List of tools
 agent_tools = [
     add_title_to_movies_I_have_already_watched,
     add_title_to_movies_I_have_never_watched_but_want_to,
     add_title_to_movies_I_have_never_watched_and_dont_want_to,
     remove_title_from_lists_of_movies,
+    search_for_personal_information_in_movie_history
 ]

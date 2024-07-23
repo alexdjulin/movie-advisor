@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from tools import *
+import tools
 # env vars
 import dotenv
 dotenv.load_dotenv()
@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 # logger
 import logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
-LOG = logging.getLogger("movie_history")
+LOG = logging.getLogger("main")
 # openai
 embeddings = OpenAIEmbeddings()
 
@@ -22,7 +22,7 @@ sep = 50 * "-"
 def main():
 
     # init table
-    init_table()
+    tools.init_table()
 
     # create openai model and link it to tools
     llm_gpt4 = ChatOpenAI(model='gpt-4o-mini')
@@ -31,11 +31,27 @@ def main():
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", (
-                "You are a helpful movie advisor. You give me recommendations and you update my history based on my answers:"
+                "You are a helpful movie advisor, you recommend me movies based on my watch history and preferences."
+                "I order movies into three lists:"
                 "- Movies I already watched in the past"
                 "- Movies I want to watch later"
                 "- Movies I never want to watch"
+                "Only update these lists when I specifically ask you to do so."
+                "Only recommend movies one by one."
             )),
+            ("ai", "Hello! I am your movie advisor. How can I help you today?"),
+            ("human", "Give me a good French comedy."),
+            ("ai", "Sure! How about 'Amélie'?"),
+            ("human", "I already watched that one 10 times and I love it!"),
+            ("ai", "Great! I added Amélie to the list of movies you already watched."),
+            ("human", "What about a good action movie?"),
+            ("ai", "How about 'The Expandables'?"),
+            ("human", "No, I'm not a fan of Sylvester Stallone."),
+            ("ai", "Got it! I added The Expandables to the list of movies you never want to watch."),
+            ("human", "What about a good thriller?"),
+            ("ai", "How about 'Seven'?"),
+            ("human", "Oh yes, I definitely want to watch that one!"),
+            ("ai", "Great! I added Seven to the list of movies you want to watch later."),
             ("placeholder", "{chat_history}"),
             ("human", "{input}"),
             ("placeholder", "{agent_scratchpad}"),
@@ -43,15 +59,15 @@ def main():
     )
 
     # create langchain agent
-    agent = create_tool_calling_agent(llm_gpt4, agent_tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=agent_tools, verbose=False)
+    agent = create_tool_calling_agent(llm_gpt4, tools.agent_tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools.agent_tools, verbose=False)
 
     messages = []
 
     # chat loop
     while True:
 
-        watch_lists = get_watch_lists()
+        watch_lists = tools.get_watch_lists()
         print("WATCH STATUS:", watch_lists)
 
         input_text = input("Alex: ")
