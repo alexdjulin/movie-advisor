@@ -52,6 +52,8 @@ def main():
             ("ai", "How about 'Seven'?"),
             ("human", "Oh yes, I definitely want to watch that one!"),
             ("ai", "Great! I added Seven to the list of movies you want to watch later."),
+            ("human", "Do you know if I already watched 'The Matrix'? Did I liked it?"),
+            ("ai", "I checked your movie history and yes, you already watched 'The Matrix'. You said it was groundbreaking movie with strong performance innovative special effects that left a memorable experience on your teenage years."),
             ("placeholder", "{chat_history}"),
             ("human", "{input}"),
             ("placeholder", "{agent_scratchpad}"),
@@ -60,7 +62,7 @@ def main():
 
     # create langchain agent
     agent = create_tool_calling_agent(llm_gpt4, tools.agent_tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools.agent_tools, verbose=False)
+    agent_executor = AgentExecutor(agent=agent, tools=tools.agent_tools, verbose=True)
 
     messages = []
 

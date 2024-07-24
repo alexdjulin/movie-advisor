@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import dotenv
+import requests
 # langchain
 from langchain_core.tools import tool
 from langchain.schema import Document
@@ -229,11 +230,46 @@ def search_for_personal_information_in_movie_history(query: str) -> None:
     return context
 
 
+@tool
+def query_tmdb_database_for_information_about_a_movie(query: str) -> list:
+    """Query the TMDB database for a movie title and return some information about it.
+
+    Args:
+        query (str): movie title to search for
+
+    Return:
+        list: list of matching movie info dicts
+    """
+
+    # Base URL for the search endpoint
+    url = "https://api.themoviedb.org/3/search/movie"
+
+    # Parameters for the API request
+    params = {
+        'api_key': os.getenv("TMDB_BEARER_TOKEN"),
+        'query': query
+    }
+
+    # Making the GET request to the API
+    response = requests.get(url, params=params)
+
+    # Checking if the request was successful
+    if response.status_code == 200:
+        # Parsing the JSON response
+        data = response.json()
+        return data['results']
+    else:
+        # If the request failed, print the status code
+        print(f"Error: {response.status_code}")
+        return None
+
+
 # List of tools
 agent_tools = [
     add_title_to_movies_I_have_already_watched,
     add_title_to_movies_I_have_never_watched_but_want_to,
     add_title_to_movies_I_have_never_watched_and_dont_want_to,
     remove_title_from_lists_of_movies,
-    search_for_personal_information_in_movie_history
+    search_for_personal_information_in_movie_history,
+    query_tmdb_database_for_information_about_a_movie,
 ]
