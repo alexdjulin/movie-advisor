@@ -4,15 +4,15 @@ import os
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-# openai
-embeddings = OpenAIEmbeddings()
-# xata client and config
-from xata.client import XataClient
-xata = XataClient()
+from langchain_openai import ChatOpenAI
+from langchain_google_community import SpeechToTextLoader
+
 # load environment variables
 import dotenv
 dotenv.load_dotenv()
+
+project_id = "ai-chitchat"
+file_path = "prototypes/audio.wav"
 
 llm_gpt4 = ChatOpenAI(model='gpt-4o-mini', api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -32,7 +32,13 @@ prompt = ChatPromptTemplate.from_messages(
 
 messages = []
 
-# create string output parser
+# create speech loader
+def process_speech():
+    project_id = "ai-chitchat"
+    file_path = "prototypes/audio.wav"
+    loader = SpeechToTextLoader(project_id=project_id, file_path=file_path)
+    return loader.load()[0].page_content
+
 str_output_parser = StrOutputParser()
 
 # create chain
@@ -40,19 +46,18 @@ chain = prompt | llm_gpt4 | str_output_parser
 
 while True:
     # define input
-    question = input("Me: ")
-    if question == "":
-        break
+    # question = input("Me: ")
+    # if question == "":
+        # break
 
-    messages.append(HumanMessage(content=question))
+    # messages.append(HumanMessage(content=question))
 
     # invoke answer
     answer = chain.invoke(
         {
-            "input": question,
-            "chat_history": messages
+            "input": process_speech()
         }
     )
-    
-    messages.append(AIMessage(content=answer))
-    print("AI: ", answer)
+
+    # messages.append(AIMessage(content=answer))
+    print("AI:", answer)
