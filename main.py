@@ -11,7 +11,8 @@ Date: 2024-07-25
 import os
 import sys
 ai_chitchat_path = os.path.join(os.path.dirname(__file__), 'ai_chitchat')
-sys.path.insert(0, ai_chitchat_path)
+# sys.path.insert(0, ai_chitchat_path) # load ai_chitchat modules first in case of name duplicates
+sys.path.append(ai_chitchat_path) # load ai_chitchat modules last
 
 # parse command line arguments
 import argparse
