@@ -6,10 +6,11 @@ Description: Tool methods that the langchain agent can use to retrieve informato
 Author: @alexdjulin
 Date: 2024-07-25
 """
+
 import os
 from pathlib import Path
-import dotenv
 import requests
+from pathlib import Path
 # langchain
 from langchain_core.tools import tool
 from langchain.schema import Document
@@ -17,10 +18,23 @@ from langchain_openai import OpenAIEmbeddings
 # xata
 from xata.client import XataClient
 from langchain_community.vectorstores.xata import XataVectorStore
-# logger
-from logger import get_logger
-LOG = get_logger(Path(__file__).stem)
+# logger: import from ai_chitchat subrepo or create a default one if not available
+try:
+    from logger import get_logger
+    LOG = get_logger(Path(__file__).stem)
+except ImportError:
+    import logging
+    logging.basicConfig(
+        level=10,  # debug
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        filename='movie_advisor.log',
+        force=True
+    )
+    LOG = logging.getLogger(Path(__file__).stem)
 
+
+# environment variables
+import dotenv
 dotenv.load_dotenv()
 
 TABLE_NAME = "movie-history"
