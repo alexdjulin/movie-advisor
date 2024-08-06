@@ -38,7 +38,6 @@ import dotenv
 dotenv.load_dotenv()
 
 TABLE_NAME = "movie-history"
-SEP = 50 * "-"
 
 xata = XataClient()
 
@@ -88,35 +87,32 @@ def create_table() -> None:
     LOG.info(f"Table '{TABLE_NAME}' created successfully.")
 
 
-def get_table_records() -> list:
+def query_table(columns: list[str] = None, filter: dict = None) -> list[dict]:
     """Query all table records.
+
+    Args:
+        columns (list): list of columns to retrieve
+        filter (dict): filter to apply to the query
 
     Returns:
         list: list of record dicts
     """
-    records = xata.data().query(TABLE_NAME)["records"]
+
+    payload = {}
+    payload["page"] = {"size": 1000} # limiting it to 1000 results
+    if columns:
+        payload["columns"] = columns
+    if filter:
+        payload["filter"] = filter
+
+    records = xata.data().query(
+        table_name=TABLE_NAME,
+        payload=payload,
+    )
+
     LOG.debug(f"Retrieved {len(records)} records from table.")
-    return records
 
-
-def print_table() -> None:
-    """Print all records from the table."""
-
-    records = get_table_records()
-
-    if not records:
-        print("Table is empty.")
-        return
-
-    for rec in records:
-        print(SEP)
-        print(f"id: {rec["id"]}")
-        print(f"title: {rec["title"]}")
-        print(f"status: {rec['status']}")
-        print(f"comment: {rec['comment']}")
-        print(f"content: {rec['content']}")
-
-    print(SEP)
+    return records["records"]
 
 
 def add_update_movie(movie_record: dict) -> None:
@@ -127,7 +123,8 @@ def add_update_movie(movie_record: dict) -> None:
         movie_record (dict): new or updated record dict
     """
 
-    table_records = get_table_records()
+    # query table titles
+    table_records = query_table(columns=["title"])
 
     # delete record if it exists
     for rec in table_records:
@@ -142,58 +139,65 @@ def add_update_movie(movie_record: dict) -> None:
     LOG.debug(f"Added record '{movie_record['title']}' to table.")
 
 
-def delete_movie_from_table(title: str) -> None:
-    """Delete a record from the table.
-
-    Args:
-        title (str): movie title
-    """
-    records = get_table_records()
-    for rec in records:
-        if rec["title"] == title:
-            xata.records().delete(TABLE_NAME, rec["id"])
-            print(f"Record '{title}' deleted successfully")
-            return
-
-    LOG.info(f"Record '{title}' not found.")
-
-
-def get_watch_lists() -> dict:
-    """Create a dictionary with the watched, must see and not interested movies
-    from the table records.
+def get_watch_lists() -> str:
+    """Create a dictionary with watchlists content from the table records.
 
     Returns:
-        dict: dictionary with the three lists
+        str: string listing the contents of the four lists
     """
 
-    table_records = get_table_records()
+    watched_liked = [rec['title'] for rec in query_table(columns=["title"], filter={"status": "watched_liked"})]
+    watched_disliked = [rec['title'] for rec in query_table(columns=["title"], filter={"status": "watched_disliked"})]
+    must_see = [rec['title'] for rec in query_table(columns=["title"], filter={"status": "must_see"})]
+    not_interested = [rec['title'] for rec in query_table(columns=["title"], filter={"status": "not_interested"})]
 
-    watched = [rec['title'] for rec in table_records if rec["status"] == "watched"]
-    must_see = [rec['title'] for rec in table_records if rec["status"] == "must_see"]
-    not_interested = [rec['title'] for rec in table_records if rec["status"] == "not_interested"]
+    watch_lists = 'Here is my movie history. Do not recommend any of these:\n'
+    watch_lists += f"1. Watched and liked ({len(watched_liked)}): " + ", ".join(watched_liked) + "\n"
+    watch_lists += f"2. Watched and disliked ({len(watched_disliked)}): " + ", ".join(watched_disliked) + "\n"
+    watch_lists += f"3. Must see ({len(must_see)}): " + ", ".join(must_see) + "\n"
+    watch_lists += f"4. Not interested ({len(not_interested)}): " + ", ".join(not_interested) + "\n"
 
-    watch_list = {"watched": watched, "must_see": must_see, "not_interested": not_interested}
-    LOG.debug(f"Retrieved watch lists: {watch_list}")
+    LOG.debug(f"Retrieved watch lists: {watch_lists}")
 
-    return watch_list
+    return watch_lists
 
 
 @tool
-def add_title_to_movies_I_have_already_watched(title: str, comment: str) -> None:
-    """Add a movie title to the list of movies I have already watched in the past.
+def add_title_to_movies_I_watched_and_liked(title: str, comment: str) -> None:
+    """Add a movie title to the list of movies I have already watched and liked.
 
     Args:
         title (str): original movie title
-        comment (str): my personal comment about the movie, sumed up in a few key words. Translate it in English if necessary.
+        comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
     LOG.debug("Tool call: add_title_to_movies_I_have_already_watched")
 
     record = {
         "title": title,
-        "status": "watched",
+        "status": "watched_liked",
         "comment": comment,
-        "content": f"{title} (watched) {comment}"
+        "content": f"{title} (watched_liked) {comment}"
+    }
+    add_update_movie(record)
+
+
+@tool
+def add_title_to_movies_I_watched_and_disliked(title: str, comment: str) -> None:
+    """Add a movie title to the list of movies I have already watched but did not like.
+
+    Args:
+        title (str): original movie title
+        comment (str): my personal comment about the movie. Translate it in English if necessary.
+    """
+
+    LOG.debug("Tool call: add_title_to_movies_I_have_already_watched")
+
+    record = {
+        "title": title,
+        "status": "watched_disliked",
+        "comment": comment,
+        "content": f"{title} (watched_disliked) {comment}"
     }
     add_update_movie(record)
 
@@ -204,7 +208,7 @@ def add_title_to_movies_I_have_never_watched_but_want_to(title: str, comment: st
 
     Args:
         title (str): movie title
-        comment (str): my personal comment about the movie, sumed up in a few key words.  Translate it in English if necessary.
+        comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
     LOG.debug("Tool call: add_title_to_movies_I_have_never_watched_but_want_to")
@@ -224,7 +228,7 @@ def add_title_to_movies_I_have_never_watched_and_dont_want_to(title: str, commen
 
     Args:
         title (str): movie title
-        comment (str): my personal comment about the movie, sumed up in a few key words. Translate it in English if necessary.
+        comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
     LOG.debug("Tool call: add_title_to_movies_I_have_never_watched_and_dont_want_to")
@@ -238,16 +242,16 @@ def add_title_to_movies_I_have_never_watched_and_dont_want_to(title: str, commen
     add_update_movie(record)
 
 
-@tool
-def remove_title_from_lists_of_movies(title: str) -> None:
-    """Remove a movie title from my list of movies
+# @tool
+# def remove_title_from_lists_of_movies(title: str) -> None:
+#     """Remove a movie title from my list of movies
 
-    Args:
-        title (str): movie title to delete
-    """
+#     Args:
+#         title (str): movie title to delete
+#     """
 
-    LOG.debug("Tool call: remove_title_from_lists_of_movies")
-    delete_movie_from_table(title)
+#     LOG.debug("Tool call: remove_title_from_lists_of_movies")
+#     delete_movie_from_table(title)
 
 
 @tool
@@ -324,10 +328,10 @@ def get_all_movies_from_my_watch_lists() -> dict:
 
 # List of tools
 agent_tools = [
-    add_title_to_movies_I_have_already_watched,
+    add_title_to_movies_I_watched_and_liked,
+    add_title_to_movies_I_watched_and_disliked,
     add_title_to_movies_I_have_never_watched_but_want_to,
     add_title_to_movies_I_have_never_watched_and_dont_want_to,
-    remove_title_from_lists_of_movies,
     search_for_personal_information_in_movie_history,
     query_tmdb_database_for_information_about_a_movie,
     get_all_movies_from_my_watch_lists,
