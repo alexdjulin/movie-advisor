@@ -43,7 +43,8 @@ if __name__ == '__main__':
     avatar = AiChatbot()
 
     # create worker agent
-    avatar.create_worker_agent(placeholders=["movie_history"])
+    avatar.create_worker_agent()
+    # avatar.create_worker_agent(placeholders=["movie_history"])
 
     # start chat
     avatar.chat_with_avatar(input_method, language)
