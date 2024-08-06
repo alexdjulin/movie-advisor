@@ -13,6 +13,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 # openai
 embeddings = OpenAIEmbeddings()
 sep = 50 * "-"
+# terminal colors
 CYAN = '\033[96m'
 MAGENTA = '\033[95m'
 RESET = '\033[0m'
