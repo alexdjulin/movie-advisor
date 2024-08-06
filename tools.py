@@ -18,7 +18,7 @@ from langchain_openai import OpenAIEmbeddings
 # xata
 from xata.client import XataClient
 from langchain_community.vectorstores.xata import XataVectorStore
-# logger: import from ai_chitchat subrepo or create a default one if not available
+# logger: import from ai_chatbot subrepo or create a default one if not available
 try:
     from logger import get_logger
     LOG = get_logger(Path(__file__).stem)

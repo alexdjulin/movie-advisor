@@ -1,3 +1,3 @@
-[submodule "ai_chitchat"]
-	path = ai_chitchat
-	url = https://github.com/alexdjulin/ai_chitchat.git
+[submodule "ai_chatbot"]
+	path = ai_chatbot
+	url = https://github.com/alexdjulin/ai_chatbot.git
