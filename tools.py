@@ -37,7 +37,7 @@ except ImportError:
 import dotenv
 dotenv.load_dotenv()
 
-TABLE_NAME = "movie-history"
+TABLE_NAME = "movie_history"
 
 xata = XataClient()
 
@@ -242,22 +242,9 @@ def add_title_to_movies_I_have_never_watched_and_dont_want_to(title: str, commen
     add_update_movie(record)
 
 
-# @tool
-# def remove_title_from_lists_of_movies(title: str) -> None:
-#     """Remove a movie title from my list of movies
-
-#     Args:
-#         title (str): movie title to delete
-#     """
-
-#     LOG.debug("Tool call: remove_title_from_lists_of_movies")
-#     delete_movie_from_table(title)
-
-
 @tool
-def search_for_personal_information_in_movie_history(query: str) -> list | None:
-    """Search the database for a movie title and personal comments about it to give some context
-    and help answer a question.
+def search_movie_history_for_info_and_preferences(query: str) -> list | None:
+    """Search the database for any kind of information regarding my movie history, preferences, likes and dislikes.
 
     Args:
         title (str): movie title to delete
@@ -332,7 +319,7 @@ agent_tools = [
     add_title_to_movies_I_watched_and_disliked,
     add_title_to_movies_I_have_never_watched_but_want_to,
     add_title_to_movies_I_have_never_watched_and_dont_want_to,
-    search_for_personal_information_in_movie_history,
+    search_movie_history_for_info_and_preferences,
     query_tmdb_database_for_information_about_a_movie,
     get_all_movies_from_my_watch_lists,
 ]
