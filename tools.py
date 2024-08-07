@@ -10,7 +10,6 @@ Date: 2024-07-25
 import os
 from pathlib import Path
 import requests
-from pathlib import Path
 # langchain
 from langchain_core.tools import tool
 from langchain.schema import Document
@@ -31,11 +30,6 @@ except ImportError:
         force=True
     )
     LOG = logging.getLogger(Path(__file__).stem)
-
-
-# environment variables
-import dotenv
-dotenv.load_dotenv()
 
 TABLE_NAME = "movie_history"
 
