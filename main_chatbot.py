@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Filename: main.py
-Description: Start chatting with the movie advisor.
+Filename: main_chatbot.py
+Description: Run the chatbot using the ai_chatbot module.
 Author: @alexdjulin
 Date: 2024-07-25
 """
@@ -13,6 +13,10 @@ import sys
 ai_chatbot_path = os.path.join(os.path.dirname(__file__), 'ai_chatbot')
 # sys.path.insert(0, ai_chatbot_path) # load ai_chatbot modules first in case of name duplicates
 sys.path.append(ai_chatbot_path) # load ai_chatbot modules last
+
+# environment variables
+import dotenv
+dotenv.load_dotenv()
 
 # parse command line arguments
 import argparse
