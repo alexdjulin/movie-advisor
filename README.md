@@ -106,3 +106,29 @@ python main_chatbot.py --language de-DE
 # combined arguments, short options
 python main_chatbot.py -i voice -l fr_FR
 ```
+
+# Issues and Limitations
+
+Hier is a non exhaustive list of limitations I noticed when chatting with my movie advisor. Feel free to reach out and help me improve it :)
+
+## Prompt Issues:
+In general, the LLM is acknoledging and resprecting prompt guidelines accurately. I had to rephrase some of them to get better results.  
+
+The only problematic one is: `Always check my watch history and never recommend a movie that is already on one of my lists.`  
+The LLM almost never queries my watch lists from xata and therefore tends to recommend movies we already talked about. 
+
+I tried to add my movie history as a placeholder with every query: The LLM then knows exactly the content of each list and avoid recommending the same movies (although it still happens sometimes). But this leads to another issue: The model gets lazy and does not query the database anymore. If I ask why I liked or disliked a movie, it starts hallucinating and inventing a reason, instead of doing a vector search and retrieving the real reason.
+
+## Tools Issues:
+The LLM is understanding and using the tools as expected. I noticed how important the tool methods name and docstrings are important, so the LLM understand what they should be used for.
+
+I had some issues when the LLM answers that it will update the watch lists, but eventually does not call the matching tools (liar!). I had to ask again explicitely:   
+`Could you add it to my watch lists?`   
+`Could you update my movie history?`
+
+## Speech Issues:
+Those issues relate to the ai_chatbot speech engines. I am using GoogleWeb Speech-To-Text and Edge-tts Text-To-Speech engines to offer voice conversation. Both are free, lightweight and offer low-latency conversations. However, they do not offer a multi-lingual support.  
++ When querying a French movie title, the STT engine still thinks that I'm speaking in English and incorectly interprets it.
++ Same issue when the LLM recommends a French movie, Edge-TTS reads the title with a strong english accent.
+
+This issue could be fixed by implementing multi-lingual solutions (like Elevenlabs).
