@@ -15,7 +15,6 @@ Here is an schematic of the project. The pipeline is built around the Agent, whi
 + The LLM provides an answer based on prompt, user query and enhanced context when needed.
 + The text answer is going through *Edge TTS* engine and returned to the user as a voice message.
 
-
 # Installation
 
 Create a virtual environment and install modules listed in requirements.txt as follows.
@@ -29,7 +28,7 @@ pip install -r requirements.txt
 
 Rename `.env_template` in `.env`. Add missing api-keys and tokens to it (see [Prerequisites](#prerequisites) below).
 
-# Use voice to talk to the model
+# Installation AI-Chatbot submodule to use voice
 
 If you want to talk to the model using speech, like in the demo, you need to initialize the [ai_chatbot](https://github.com/alexdjulin/ai_chatbot) submodule and install the required modules too.
 
@@ -107,6 +106,10 @@ python main_chatbot.py --language de-DE
 # combined arguments, short options
 python main_chatbot.py -i voice -l fr_FR
 ```
+
+# Research and Development
+
+See `project_research.ipynb` if you are interested in the RnD steps I went through while building this project. It is also listing issues I ran into and contains multiple solutions I eventually did not use, like using the TMDB dataset from Kaggle or langchain TMDB-api tool.
 
 # Issues and Limitations
 
