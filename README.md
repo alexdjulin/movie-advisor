@@ -31,11 +31,12 @@ Rename `.env_template` in `.env`. Add missing api-keys and tokens to it (see [Pr
 
 # Use voice to talk to the model
 
-If you want to talk to the model using speech, like in the demo, you need to add the [ai_chatbot](https://github.com/alexdjulin/ai_chatbot) repo as submodule and install the required modules too.
+If you want to talk to the model using speech, like in the demo, you need to initialize the [ai_chatbot](https://github.com/alexdjulin/ai_chatbot) submodule and install the required modules too.
 
 ```bash
-git submodule add https://github.com/alexdjulin/ai_chatbot.git ai_chatbot
-pip install -r ai_chatbot/requirements.txt
+git submodule add https://github.com/alexdjulin/ai_chatbot.git ai_chatbot  # if .gitmodules is missing
+git submodule update --init --recursive  # if ai_chatbot specified in .gitmodules
+pip install -r ai_chatbot/requirements.txt  # install ai_chatbot requirements
 ```
 
 Copy `config.yaml` from root folder inside the `ai_chatbot` folder to configure it for this project.
