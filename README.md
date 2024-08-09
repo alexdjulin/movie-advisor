@@ -110,7 +110,8 @@ python main_chatbot.py -i voice -l fr_FR
 
 # Issues and Limitations
 
-Hier is a non exhaustive list of limitations I noticed when chatting with my movie advisor. Feel free to reach out and help me improve it :)
+Hier is a non exhaustive list of limitations I noticed when chatting with my movie advisor.  
+Feel free to reach out and help me solve these :)
 
 ## Prompt Issues:
 In general, the LLM is acknoledging and resprecting prompt guidelines accurately. I had to rephrase some of them to get better results.  
