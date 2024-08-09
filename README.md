@@ -70,7 +70,7 @@ Don't forget to never commit any credentials to your repositories! As a security
 # Project Set-up
 If using the ai_chatbot submodule, like in the demo, you need to make sure that the paths listed in `config.yaml` are pointing to the correct prompt and tools.
 
-The prompt should be `prompt_advisor.jsonl` and the tools `tools.py` from the root folder. Be careful that there is another `tools.py` file inside ai_chatbot, which is used when demoing this repo only.
+The prompt should be `prompt_advisor.jsonl` and the tools `tools.py` from the root folder. Be careful that there are additional `prompt.jsonl` and `tools.py` files inside ai_chatbot, that are used when demoing this repo.
 
 ```yaml
 prompt_filepath: ../prompt_advisor.jsonl
