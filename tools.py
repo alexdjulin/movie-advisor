@@ -10,13 +10,12 @@ Date: 2024-07-25
 import os
 from pathlib import Path
 import requests
+
 # langchain
 from langchain_core.tools import tool
 from langchain.schema import Document
 from langchain_openai import OpenAIEmbeddings
-# xata
-from xata.client import XataClient
-from langchain_community.vectorstores.xata import XataVectorStore
+
 # logger: import from ai_chatbot subrepo or create a default one if not available
 try:
     from logger import get_logger
@@ -31,9 +30,17 @@ except ImportError:
     )
     LOG = logging.getLogger(Path(__file__).stem)
 
-TABLE_NAME = "movie_history"
+# log tool calls to file
+TOOL_CALLS_LOG = "tool_calls.log"
+with open(TOOL_CALLS_LOG, 'w') as log:
+    pass
+
+# xata
+from xata.client import XataClient
+from langchain_community.vectorstores.xata import XataVectorStore
 
 xata = XataClient()
+TABLE_NAME = "movie_history"
 
 vector_store = XataVectorStore(
     embedding=OpenAIEmbeddings(),
@@ -41,6 +48,19 @@ vector_store = XataVectorStore(
     db_url=os.getenv("XATA_DATABASE_URL"),
     table_name=TABLE_NAME,
 )
+
+
+def log_tool_calls(tool_call: str = None) -> None:
+    """Log the steps of the tool calls.
+    
+    Useful to keep an eye on the tool calls agent verbose is set to false.
+
+    Args:
+        tool_call (str): tool call to log
+    """
+
+    with open(TOOL_CALLS_LOG, 'a') as log:
+        log.write(tool_call + '\n')
 
 
 def init_table() -> None:
@@ -165,6 +185,7 @@ def add_title_to_movies_I_watched_and_liked(title: str, comment: str) -> None:
         comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
+    log_tool_calls("[Tool Call] Add movie to watched and liked")
     LOG.debug("Tool call: add_title_to_movies_I_have_already_watched")
 
     record = {
@@ -185,6 +206,7 @@ def add_title_to_movies_I_watched_and_disliked(title: str, comment: str) -> None
         comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
+    log_tool_calls("[Tool Call] Add movie to watched and disliked")
     LOG.debug("Tool call: add_title_to_movies_I_have_already_watched")
 
     record = {
@@ -205,6 +227,7 @@ def add_title_to_movies_I_have_never_watched_but_want_to(title: str, comment: st
         comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
+    log_tool_calls("[Tool Call] Add movie to must_see list")
     LOG.debug("Tool call: add_title_to_movies_I_have_never_watched_but_want_to")
 
     record = {
@@ -225,6 +248,7 @@ def add_title_to_movies_I_have_never_watched_and_dont_want_to(title: str, commen
         comment (str): my personal comment about the movie. Translate it in English if necessary.
     """
 
+    log_tool_calls("[Tool Call] Add movie to not_interested list")
     LOG.debug("Tool call: add_title_to_movies_I_have_never_watched_and_dont_want_to")
 
     record = {
@@ -244,6 +268,7 @@ def search_movie_history_for_info_and_preferences(query: str) -> list | None:
         title (str): movie title to delete
     """
 
+    log_tool_calls("[Tool Call] Vector search in movie history")
     LOG.debug("Tool call: search_for_personal_information_in_movie_history")
     found_docs = vector_store.similarity_search(query, k=3)
 
@@ -269,6 +294,7 @@ def query_tmdb_database_for_information_about_a_movie(query: str) -> list:
         list: list of matching movie info dicts
     """
 
+    log_tool_calls("[Tool Call] Query TMDB")
     LOG.debug("Tool call: query_tmdb_database_for_information_about_a_movie")
 
     # Base URL for the search endpoint
@@ -303,6 +329,7 @@ def get_all_movies_from_my_watch_lists() -> dict:
         dict: dictionary with the three lists of titles.
     """
 
+    log_tool_calls("[Tool Call] Get watch lists")
     LOG.debug("Tool call: get_all_movies_from_my_watch_lists")
     return get_watch_lists()
 
