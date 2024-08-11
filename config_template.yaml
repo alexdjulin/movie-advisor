@@ -1,0 +1,59 @@
+# USER SETTINGS
+## How the user should interact with the avatar
+user_name: Me  # the name of the user as written to Terminal and chat history
+# Chose between 3 chat input methods (can be overriden by argparse):
+## text: type text in the terminal, get text answers
+## voice: speak to the microphone, get voice answers
+## voice_k: hold and release keyboard spacebar to speak, get voice answers (recommended in a noisy environment)
+input_method: voice  # specify default input method for chatbot
+# Chose default language to converse with the avatar (can be overriden by argparse).
+## This setting is ignored in input text mode.
+chat_language: en-US
+user_color: B_I_CYAN  # the color of the user's text in the terminal (see terminal_colors module)
+
+# AVATAR SETTINGS
+## Information about the AI bot
+chatbot_name: Marylin  # the name of the avatar as written to Terminal and chat history
+ai_color: B_I_MAGENTA  # the color of the avatar's text in the terminal (see terminal_colors module)
+
+# OPENAI SETTINGS
+## We use OpenAI gpt model to generate an answer from a prompt
+openai_api_key:    # PASTE YOUR OPENAI API KEY HERE
+openai_model: gpt-4o-mini  # the Openai model to use
+temperature: 1  # the temperature of the model (higher values make the model more creative)
+prompt_filepath: ../prompt_advisor.jsonl  # local path to jsonl file with prompts to use for the chatbot
+tools_filepath: ../tools.py  # local path to python module tools.py defining the tools available to the langchain agent (if used)
+agent_verbose: true  # print agent activity logs
+
+# EDGE TTS SETTINGS
+## We use Microsoft Edge Text-to-Speech API
+## List voices below that will be used based on the chat_language key
+## See: https://gist.github.com/BettyJJ/17cbaa1de96235a7f5773b8690a20462
+edgetts_voices: 
+  en-US: en-US-AriaNeural
+  en-GB: en-GB-SoniaNeural
+  fr-FR: fr-FR-DeniseNeural 
+  de-DE: de-DE-KatjaNeural
+  ro-RO: ro-RO-AlinaNeural
+temp_audio_filepath: _temp.wav  # local path where to save the temporary TTS audio file (will be deleted after use)
+tts_rate: +10%  # the rate of speech (speed) in percentage
+tts_volume: +0%  # the volume of speech in percentage
+tts_pitch: +0Hz  # the pitch of speech in Hz
+
+# SPEECH RECOGNITION SETTINGS
+## We use Google Speech Recognition API to recognize the user's speech
+speech_timeout: 10  # how many seconds to wait for the user to speak before timing out
+phrase_time_out: 10  # how many seconds to wait for the user to resume talking after a pause (increase the latency)
+
+# LOG SETTINGS
+# We use Python logging module to log debug information to a file
+log_level: DEBUG  # the log level to use
+log_filepath: logs/ai_chatbot.log  # local path where the log file will be saved
+log_format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'  # the format of the log messages
+empty_log: true  # if true, the log file will be emptied on startup
+
+# CHAT HISTORY SETTINGS
+# We can save the current chat to a csv file
+chat_history: csv/chat_history.csv  # local path where the chat history will be saved
+add_timestamp: true  # if true, add a timestamp to each chat message
+clear_history: true  # if true, the chat history csv file will be emptied on startup
